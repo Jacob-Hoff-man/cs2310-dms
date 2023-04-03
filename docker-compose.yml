@@ -6,3 +6,16 @@ services:
       - 3000:3000
     volumes: 
       - .:/app/
+  postgres:
+      restart: always
+      image: postgres
+      ports: 
+        - 5432:5432
+      environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass
+        POSTGRES_DB: db
+      volumes: 
+        - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

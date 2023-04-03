@@ -7,6 +7,7 @@ import type {
 
 import { Global, css } from '@emotion/react';
 import Layout from '../ui/layouts/MainLayout';
+import { SessionProvider } from "next-auth/react"
 
 export type NextPageWithLayout = NextPage & {
   // eslint-disable-next-line no-unused-vars
@@ -43,7 +44,9 @@ export default function MyApp(props: AppPropsWithLayout) {
           }
         `}
       />
-      <Component {...pageProps} />
+      <SessionProvider session={pageProps.session}>
+        <Component {...pageProps} />
+      </SessionProvider>
     </>
   );
 }
