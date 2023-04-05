@@ -1,5 +1,6 @@
 import { ReactElement } from 'react';
 import {
+  Button,
   Container,
   Typography,
 } from '@mui/material';
@@ -7,48 +8,34 @@ import { StyledBox } from './homePage.styles';
 import MainLayout from '../../layouts/MainLayout';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import isAdmin from '../../../auth/admin';
+import RegularUserDashboard from '../../comps/RegularUserDashboard';
+import AdminUserDashboard from '../../comps/AdminUserDashboard';
 
 const HomePage = () => {
   const { data: session } = useSession();
-  return (
-    <Container maxWidth={false}>
-      <StyledBox>
-        <Typography component="h1" color="primary">
-          FRONT-END: Material UI v5 with Next.js 12.1.6 and emotion/styled 11.10 in TypeScript.
-        </Typography>
-        <Typography component="h2" color="secondary">
-          CI ACTIONS: ESLint (Airbnb) integration with Next and Jest/React testing libraries integration with Next.
-        </Typography>
-        <Typography component="h3" color="error">
-          Boilerplate for building faster.
-        </Typography>
-      </StyledBox>
-      
-      <StyledBox>
+  if (session && typeof session.user !== 'undefined') {
+    // logged in
+    return (
+      <>
+        Signed in as {session.user.email}
+        <Button onClick={() => signOut()}>Sign Out</Button>
         {
-        (session && typeof session.user !== 'undefined') ? (
-          <>
-            Signed in as {session.user.email} <br />
-            {
-              isAdmin(session.user.email) && (
-                <Typography component="h1" color="primary">
-                  Admin User
-                </Typography>
-                )
-            }
-            <button onClick={() => signOut()}>Sign Out</button>
-          </>
-        )
-        : (
-          <>
-            Not signed in <br />
-            <button onClick={() => signIn()}>Sign</button>
-          </>
-        )
+          isAdmin(session.user.email) ? (
+            <AdminUserDashboard />
+          ) : (
+            <RegularUserDashboard />
+          )
         }
+      </>
+    );
+  } else {
+    // not logged in
+    return (
+      <StyledBox>
+        <Button onClick={() => signIn()}>Sign In Using Email Address</Button>
       </StyledBox>
-    </Container>
-  );
+    );
+  }
 };
 
 HomePage.getLayout = function getLayout(page: ReactElement) {
