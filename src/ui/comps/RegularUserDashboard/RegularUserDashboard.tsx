@@ -6,16 +6,23 @@ import { useState } from 'react';
 import { AppType, Application, Kid } from '@prisma/client';
 import AppPopupButton from '../AppPopupButton';
 import { addNewApp, deleteApp } from '../../../endpoints/application';
+import { deleteKidByAppId } from '../../../endpoints/kid';
+import { deleteMentorByAppId } from '../../../endpoints/mentor';
 
 type Props = {
     userApplications: Application [];
+    // unscheduledAppointments: Appointment [];
     userKids: Kid [];
     userMentorAppExists: boolean;
     userIsMentor: boolean;
 }
 
-function RegularUserDashboard({ userApplications, userKids, userMentorAppExists, userIsMentor }: Props) {
+function RegularUserDashboard({ userApplications, userKids, /* unscheduledAppointments, */ userMentorAppExists, userIsMentor }: Props) {
     const [currentUserApps, setCurrentUserApps] = useState<Application []>(userApplications);
+    const [currentUserKids, setCurrentUserKids] = useState<Kid []>(userKids);
+    const [currentUserMentorAppExists, setCurrentUserMentorAppExists] = useState(userMentorAppExists);
+    const [currentUserIsMentor, setCurrentUserIsMentor] = useState(userIsMentor);
+
     const { data: session } = useSession();
     const router = useRouter();
     
@@ -26,11 +33,25 @@ function RegularUserDashboard({ userApplications, userKids, userMentorAppExists,
             let retApp = await addNewApp(inpApp) as Application;
             let newCurrentUserApps = [...currentUserApps];
             newCurrentUserApps.push(retApp);
-            setCurrentUserApps(newCurrentUserApps);    
+            setCurrentUserApps(newCurrentUserApps);
+            if (retApp.appType === AppType.MENTOR) setCurrentUserMentorAppExists(true);
         }
     };    
 
-    const handleDeleteApp = async (appId: string) => {
+    const handleDeleteApp = async (appId: string, appType: AppType) => {
+        if (appType === AppType.KID) {
+            const deletedKid = await deleteKidByAppId(appId) as Kid;
+            // update the local userKids state
+            let newUserKids = currentUserKids.filter((kid) => kid.id !== deletedKid.id)
+            setCurrentUserKids(newUserKids);
+            console.log('KIDS', currentUserKids);
+        } else if (appType === AppType.MENTOR) {
+            const deletedMentor = await deleteMentorByAppId(appId);
+            console.log('DELETED MENTOR', deletedMentor);
+            setCurrentUserMentorAppExists(false);
+            setCurrentUserIsMentor(false);
+        }
+
         const deletedApp = await deleteApp(appId) as Application;
         // update the local applications state
         let newApplications = currentUserApps.filter((app) => app.id !== deletedApp.id);
@@ -44,15 +65,40 @@ function RegularUserDashboard({ userApplications, userKids, userMentorAppExists,
                 <Typography variant='h6'>Welcome to the Regular Dashboard page!</Typography>
                 <Typography>Signed in as {session.user.email}</Typography>
                 <Button onClick={() => signOut()}>Sign Out</Button>
-                {
-                    currentUserApps.length > 0 && (
+                { /* Unscheduled Appointments (Mentor Perspective) */
+                    currentUserIsMentor && (
+                        <StyledBox>
+                            <Typography variant='h6'>
+                                {`Unscheduled Appointments (Mentor):`}
+                            </Typography>
+                        </StyledBox>
+                    )
+                }
+                { /* User-Submitted Unscheduled Appointments (Kid Perspective) */
+                    currentUserKids.length > 0 && (
+                        <StyledBox>
+                        <Typography variant='h6'>
+                            {`Unscheduled Appointments (Kid):`}
+                        </Typography>
+                        <StyledButtonsBox>
+                            
+                        </StyledButtonsBox>
+                    </StyledBox>
+                    )
+                }
+                { /* User Applications */
+                    currentUserApps.length > 0 ? (
                         <StyledBox>
                             <Typography variant='h6'>
                                 {`Applications:`}
                             </Typography>
                             <StyledButtonsBox>
                                 <AppPopupButton appType={AppType.KID} callback={submitNewApp} />
-                                <AppPopupButton appType={AppType.MENTOR} callback={submitNewApp} />
+                                {
+                                    !currentUserMentorAppExists && (
+                                        <AppPopupButton appType={AppType.MENTOR} callback={submitNewApp} />
+                                    )
+                                }
                             </StyledButtonsBox>
                             <StyledUnorderedList>
                                 {
@@ -68,7 +114,7 @@ function RegularUserDashboard({ userApplications, userKids, userMentorAppExists,
                                                         {`   `}
                                                         {app.appType === AppType.KID ? app.kidName : ''}
                                                         {`   Approved   `}
-                                                        <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
+                                                        <Button onClick={() => handleDeleteApp(app.id, app.appType)}>{`Delete App`}</Button>
                                                     </li>
                                                 </Approved>
                                             );
@@ -84,7 +130,7 @@ function RegularUserDashboard({ userApplications, userKids, userMentorAppExists,
                                                         {`   `}
                                                         {app.appType === AppType.KID ? app.kidName : ''}
                                                         {`   `}
-                                                        <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
+                                                        <Button onClick={() => handleDeleteApp(app.id, app.appType)}>{`Delete App`}</Button>
                                                     </li>
                                                 </Denied>
                                             );
@@ -93,6 +139,20 @@ function RegularUserDashboard({ userApplications, userKids, userMentorAppExists,
                                     })
                                 }
                             </StyledUnorderedList>
+                        </StyledBox>
+                    ) : (
+                        <StyledBox>
+                            <Typography variant='h6'>
+                                {`Submit an Application:`}
+                            </Typography>
+                            <StyledButtonsBox>
+                                <AppPopupButton appType={AppType.KID} callback={submitNewApp} />
+                                {
+                                    !currentUserMentorAppExists && (
+                                        <AppPopupButton appType={AppType.MENTOR} callback={submitNewApp} />
+                                    )
+                                }
+                            </StyledButtonsBox>
                         </StyledBox>
                     )
                 }

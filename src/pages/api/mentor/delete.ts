@@ -5,11 +5,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import prisma from '../../../../prisma/prisma';
 
 export default async (req: NextApiRequest, res: NextApiResponse<Mentor>) => {
-  const mentorId = req.body as string;
+  const appId = req.body as string;
   try {
     const deletedMentor = await prisma.mentor.delete({
         where: {
-            id: mentorId,
+            appId: appId,
         }
     });
     res.status(200).json(deletedMentor);

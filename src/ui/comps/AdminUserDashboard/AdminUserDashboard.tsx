@@ -3,9 +3,12 @@ import { signOut, useSession } from 'next-auth/react';
 import isAdmin from '../../../auth/admin';
 import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { Application } from '@prisma/client';
+import { Application, AppType, Kid, Mentor } from '@prisma/client';
 import { deleteApp, updateAppIsApproved } from '../../../endpoints/application';
 import { useState } from 'react';
+import { addNewKid, deleteKidByAppId } from '../../../endpoints/kid';
+import { addNewMentor, deleteMentorByAppId } from '../../../endpoints/mentor';
+import App from 'next/app';
 
 type Props = {
     applications: Application [];
@@ -25,15 +28,46 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
         }
         const updatedApp = await updateAppIsApproved(body) as Application;
         // update the local applications state
-        var newApplications = currentApps.filter((app) => app.id != updatedApp.id);
+        let newApplications = currentApps.filter((app) => app.id != updatedApp.id);
         newApplications.push(updatedApp);
         setCurrentApps(newApplications);
         console.log('APPLICATIONS', currentApps)
+        if (isApproved) {
+            // add new kid/mentor
+            if (updatedApp.appType === AppType.KID) {
+                const newKid: Kid = {
+                    id: '',
+                    kidName: updatedApp.kidName as string,
+                    appId: updatedApp.id
+                };
+                const addedKid = await addNewKid(newKid);
+                console.log("ADDED KID", addedKid);
+    
+            } else if (updatedApp.appType === AppType.MENTOR) {
+                const newMentor: Mentor = {
+                    id: '',
+                    mentorName: userEmails.get(updatedApp.userId as string) ?? '',
+                    appId: updatedApp.id
+                };
+                const addedMentor = await addNewMentor(newMentor);
+                console.log("ADDED MENTOR", addedMentor);
+            }
+        } else {
+            // delete kid/mentor by appId
+            if (updatedApp.appType === AppType.KID) {
+                const deletedKid = await deleteKidByAppId(updatedApp.id);
+                console.log("DELETED KID",deletedKid);
+            } else if (updatedApp.appType === AppType.MENTOR) {
+                const deletedMentor = await deleteMentorByAppId(updatedApp.id);
+                console.log("DELETED MENTOR",deletedMentor);
+            }
+        }
+
     };
     const handleDeleteApp = async (appId: string) => {
         const deletedApp = await deleteApp(appId) as Application;
         // update the local applications state
-        var newApplications = currentApps.filter((app) => {
+        let newApplications = currentApps.filter((app) => {
             let notDeletedApp = app.id !== deletedApp.id;
             if (notDeletedApp) return true;
             else {
@@ -45,6 +79,13 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
         });
         setCurrentApps(newApplications);
         console.log('APPLICATIONS', currentApps)
+        if (deletedApp.appType === AppType.KID) {
+            const deletedKid = await deleteKidByAppId(deletedApp.id) as Kid;
+            console.log('DELETED KID', deletedKid);
+        } else if (deletedApp.appType === AppType.MENTOR) {
+            const deletedMentor = await deleteMentorByAppId(deletedApp.id);
+            console.log('DELETED MENTOR', deletedMentor);
+        }
     }
 
 

@@ -5,5 +5,8 @@ import {
 
 export const StyledButton = styled(Button)`
     color: black;
-    width: 50%;
+    width: 44%;
+    min-height: 82px;
+    margin-left: 3%;
+    margin-right: 3%;
 `;
