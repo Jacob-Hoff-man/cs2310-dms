@@ -1,4 +1,4 @@
-import { Approved, Denied, StyledBox } from './adminUserDashboard.styles';
+import { Approved, Denied, StyledBox, StyledUnorderedList } from './adminUserDashboard.styles';
 import { signOut, useSession } from 'next-auth/react';
 import isAdmin from '../../../auth/admin';
 import { Button, Typography } from '@mui/material';
@@ -52,14 +52,16 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
         if (isAdmin(session.user.email)) {
             return (
                 <StyledBox>
-                    <Typography>Welcome to the Admin Dashboard page!</Typography>
+                    <Typography variant='h6'>Welcome to the Admin Dashboard page!</Typography>
                     <Typography>Signed in as {session.user.email}</Typography>
                     <Button onClick={() => signOut()}>Sign Out</Button>
                     {
                         currentApps.length > 0 && (
                             <StyledBox>
-                                {`Applications:`}
-                                <ul>
+                                <Typography variant='h6'>
+                                    {`Applications:`}
+                                </Typography>
+                                <StyledUnorderedList>
                                     {
                                         currentApps.map((app) => {
                                             if (app.isApproved) {
@@ -100,7 +102,7 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
 
                                         })
                                     }
-                                </ul>
+                                </StyledUnorderedList>
                             </StyledBox>
                         )
                     }
