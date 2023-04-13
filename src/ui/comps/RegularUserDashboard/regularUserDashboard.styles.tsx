@@ -35,3 +35,12 @@ export const Approved = styled.div`
 export const Denied = styled.div`
   background-color: red;
 `;
+
+export const StyledButtonsBox = styled(Box)`
+  width: 100%;
+`;
+
+export const StyledUnorderedList = styled.ul`
+  list-style-type: none;
+  padding-left: 0px;
+`

@@ -5,4 +5,5 @@ import {
 
 export const StyledButton = styled(Button)`
     color: black;
+    width: 50%;
 `;

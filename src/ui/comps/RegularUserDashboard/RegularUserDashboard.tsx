@@ -1,17 +1,20 @@
 import { Typography, Button } from '@mui/material';
 import { signOut, useSession } from 'next-auth/react';
-import { Approved, Denied, StyledBox } from './regularUserDashboard.styles';
+import { Approved, Denied, StyledBox, StyledButtonsBox, StyledUnorderedList } from './regularUserDashboard.styles';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { AppType, Application } from '@prisma/client';
+import { AppType, Application, Kid } from '@prisma/client';
 import AppPopupButton from '../AppPopupButton';
 import { addNewApp, deleteApp } from '../../../endpoints/application';
 
 type Props = {
     userApplications: Application [];
+    userKids: Kid [];
+    userMentorAppExists: boolean;
+    userIsMentor: boolean;
 }
 
-function RegularUserDashboard({ userApplications }: Props) {
+function RegularUserDashboard({ userApplications, userKids, userMentorAppExists, userIsMentor }: Props) {
     const [currentUserApps, setCurrentUserApps] = useState<Application []>(userApplications);
     const { data: session } = useSession();
     const router = useRouter();
@@ -38,57 +41,61 @@ function RegularUserDashboard({ userApplications }: Props) {
     if (session && typeof session.user !== 'undefined') {
         return (
             <StyledBox>
-                <Typography>Welcome to the Regular Dashboard page!</Typography>
+                <Typography variant='h6'>Welcome to the Regular Dashboard page!</Typography>
                 <Typography>Signed in as {session.user.email}</Typography>
                 <Button onClick={() => signOut()}>Sign Out</Button>
-                <AppPopupButton appType={AppType.KID} callback={submitNewApp} />
-                <AppPopupButton appType={AppType.MENTOR} callback={submitNewApp} />
                 {
-                        currentUserApps.length > 0 && (
-                            <StyledBox>
+                    currentUserApps.length > 0 && (
+                        <StyledBox>
+                            <Typography variant='h6'>
                                 {`Applications:`}
-                                <ul>
-                                    {
-                                        currentUserApps.map((app) => {
-                                            if (app.isApproved) {
-                                                return (
-                                                    <Approved>
-                                                        <li key={app.id}>
-                                                            {`   `}
-                                                            {app.appType}
-                                                            {`   `}
-                                                            {app.title}
-                                                            {`   `}
-                                                            {app.appType === AppType.KID ? app.kidName : ''}
-                                                            {`   Approved   `}
-                                                            <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
-                                                        </li>
-                                                    </Approved>
-                                                );
-                                            } else {
-                                                // current app is not currently approved
-                                                return (
-                                                    <Denied>
-                                                        <li key={app.id}>
-                                                            {`   `}
-                                                            {app.appType}
-                                                            {`   `}
-                                                            {app.title}
-                                                            {`   `}
-                                                            {app.appType === AppType.KID ? app.kidName : ''}
-                                                            {`   `}
-                                                            <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
-                                                        </li>
-                                                    </Denied>
-                                                );
-                                            }
+                            </Typography>
+                            <StyledButtonsBox>
+                                <AppPopupButton appType={AppType.KID} callback={submitNewApp} />
+                                <AppPopupButton appType={AppType.MENTOR} callback={submitNewApp} />
+                            </StyledButtonsBox>
+                            <StyledUnorderedList>
+                                {
+                                    currentUserApps.map((app) => {
+                                        if (app.isApproved) {
+                                            return (
+                                                <Approved>
+                                                    <li key={app.id}>
+                                                        {`   `}
+                                                        {app.appType}
+                                                        {`   `}
+                                                        {app.title}
+                                                        {`   `}
+                                                        {app.appType === AppType.KID ? app.kidName : ''}
+                                                        {`   Approved   `}
+                                                        <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
+                                                    </li>
+                                                </Approved>
+                                            );
+                                        } else {
+                                            // current app is not currently approved
+                                            return (
+                                                <Denied>
+                                                    <li key={app.id}>
+                                                        {`   `}
+                                                        {app.appType}
+                                                        {`   `}
+                                                        {app.title}
+                                                        {`   `}
+                                                        {app.appType === AppType.KID ? app.kidName : ''}
+                                                        {`   `}
+                                                        <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
+                                                    </li>
+                                                </Denied>
+                                            );
+                                        }
 
-                                        })
-                                    }
-                                </ul>
-                            </StyledBox>
-                        )
-                    }
+                                    })
+                                }
+                            </StyledUnorderedList>
+                        </StyledBox>
+                    )
+                }
             </StyledBox>
         );
     } else {
