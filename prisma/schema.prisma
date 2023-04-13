@@ -79,6 +79,8 @@ model Kid {
   kidName String
   app Application? @relation(fields: [appId], references: [id])
   appId String @unique
+  appointments Appointment[]
+  @@map(name: "kids")
 }
 
 model Mentor {
@@ -86,4 +88,18 @@ model Mentor {
   mentorName String
   app Application? @relation(fields: [appId], references: [id])
   appId String @unique
+  appointments Appointment[]
+  @@map(name: "mentors")
+}
+
+model Appointment {
+  id String @default(cuid()) @id
+  startTime DateTime @default(now()) @db.Timestamp()
+  endTime DateTime? @db.Timestamp()
+  isScheduled Boolean @default(false)
+  isActive Boolean @default(false)
+  kid Kid? @relation(fields: [kidId], references: [id])
+  kidId String?
+  mentor Mentor? @relation(fields: [mentorId], references: [id])
+  mentorId String?
 }
