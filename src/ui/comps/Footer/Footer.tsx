@@ -7,16 +7,20 @@ import MenuButton from '../MobileMenuButton';
 
 type Props = {
     name: string,
-    pages: Record<string, string>,
+    pages?: Record<string, string>,
 }
 
 function Footer({ name, pages }: Props) {
   return (
     <footer>
       <StyledContainer>
-        <StyledBox>
-          <MenuButton pages={pages} />
-        </StyledBox>
+      { pages
+        && (
+          <StyledBox>
+            <MenuButton pages={pages} />
+          </StyledBox>
+        )
+      }
       </StyledContainer>
 
       <StyledContainer>

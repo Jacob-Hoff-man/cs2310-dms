@@ -64,6 +64,7 @@ model Application {
   userId  String?
   appType AppType @default(MENTOR)
   isApproved Boolean @default(false)
+  kidName String?
 }
 
 enum AppType {
