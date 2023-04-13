@@ -30,7 +30,7 @@ export default function PopupButton({ appType, callback }: Props) {
 
   return (
     <>
-      <Tooltip title={`Register a new ${appType} into the system.`}>
+      <Tooltip title={`Submit a new ${appType} APPLICATION into the system.`}>
         <StyledButton
           size="large"
           aria-label="map toggle"
@@ -41,7 +41,7 @@ export default function PopupButton({ appType, callback }: Props) {
             bgcolor: (theme:Theme) => theme.palette.primary.main
           }}
         >
-          Register {appType}
+          REGISTER {appType}
         </StyledButton>
       </Tooltip>
       <CustomDialog open={open} onClose={handleClose} title="Insert Application Information">

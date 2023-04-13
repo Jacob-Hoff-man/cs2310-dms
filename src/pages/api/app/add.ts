@@ -1,9 +1,8 @@
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { Application, PrismaClient } from "@prisma/client";
+import { Application } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-
-const prisma = new PrismaClient();
+import prisma from '../../../../prisma/prisma';
 
 export default async (req: NextApiRequest, res: NextApiResponse<Application>) => {
   const app = req.body as Application;

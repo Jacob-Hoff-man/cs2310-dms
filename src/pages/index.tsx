@@ -5,15 +5,18 @@ import RegularUserDashboard from '../ui/comps/RegularUserDashboard/RegularUserDa
 import { StyledBox } from '../ui/comps/Index/indexPage.styles';
 import { Button } from '@mui/material';
 import prisma from '../../prisma/prisma';
-import { Application } from '@prisma/client';
+import { AppType, Application, Kid, Mentor } from '@prisma/client';
 
 type Props = {
   applications: (Application & {
     user: {
         email: string | null;
     } | null;
-})[];
-}
+  })[];
+  kids: Kid[];
+  mentors: Mentor[];
+};
+
 export const getServerSideProps = async () => {
   const applications = await prisma.application.findMany({
     include: {
@@ -25,18 +28,20 @@ export const getServerSideProps = async () => {
       }
     }
   });
-  // const kids
-  // const mentors
+  const kids = await prisma.kid.findMany();
+  const mentors = await prisma.mentor.findMany();
   // const applications
   
   return {
     props: {
       applications,
+      kids,
+      mentors
     }
   }
 }
 
-export default function Index({ applications }: Props) {
+export default function Index({ applications, kids, mentors }: Props) {
   const { data: session } = useSession();
 
   if (session && typeof session.user !== 'undefined') {
@@ -53,13 +58,31 @@ export default function Index({ applications }: Props) {
           applications={applications}
           userEmails={userEmails}
         />
-      )
+      );
     } else {
+      // regular user
+      // get user apps ids
+      let userApps = applications.filter((app) => app.userId === session.user.id);
+      let userAppsIds: string [] = userApps.map((app) => app.id); 
+      // get user kids
+      let userKids = kids.filter((kid) => userAppsIds.includes(kid.appId));
+      // get isUserMentor
+      let userMentorAppExists = false;
+      let userIsMentor = false;
+      let userMentorApp = userApps.find((app) => app.appType == AppType.MENTOR);
+      if (typeof userMentorApp !== 'undefined') {
+        // Mentor App already exists
+        userMentorAppExists = true;
+        userIsMentor = userMentorApp.isApproved;
+      }
       return (
         <RegularUserDashboard
-          userApplications={ applications.filter((app) => app.userId === session.user.id) }
+          userApplications={userApps}
+          userKids={userKids}
+          userMentorAppExists={userMentorAppExists}
+          userIsMentor={userIsMentor}
         />
-      )
+      );
     }
   } else {
     // not logged in
