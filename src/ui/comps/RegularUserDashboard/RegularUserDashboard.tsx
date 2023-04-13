@@ -17,23 +17,23 @@ function RegularUserDashboard({ userApplications }: Props) {
     const router = useRouter();
     
 
-  const submitNewApp = async (inpApp: Application) => {
-    if (session && typeof session.user !== 'undefined') {
-        inpApp.userId = session.user.id;
-        let retApp = await addNewApp(inpApp) as Application;
-        let newCurrentUserApps = [...currentUserApps];
-        newCurrentUserApps.push(retApp);
-        setCurrentUserApps(newCurrentUserApps);    
-    }
-  };
+    const submitNewApp = async (inpApp: Application) => {
+        if (session && typeof session.user !== 'undefined') {
+            inpApp.userId = session.user.id;
+            let retApp = await addNewApp(inpApp) as Application;
+            let newCurrentUserApps = [...currentUserApps];
+            newCurrentUserApps.push(retApp);
+            setCurrentUserApps(newCurrentUserApps);    
+        }
+    };    
 
-  const handleDeleteApp = async (appId: string) => {
-    const deletedApp = await deleteApp(appId) as Application;
-    // update the local applications state
-    var newApplications = currentUserApps.filter((app) => app.id !== deletedApp.id);
-    setCurrentUserApps(newApplications);
-    console.log('APPLICATIONS', currentUserApps)
-}
+    const handleDeleteApp = async (appId: string) => {
+        const deletedApp = await deleteApp(appId) as Application;
+        // update the local applications state
+        let newApplications = currentUserApps.filter((app) => app.id !== deletedApp.id);
+        setCurrentUserApps(newApplications);
+        console.log('APPLICATIONS', currentUserApps)
+    };
 
     if (session && typeof session.user !== 'undefined') {
         return (

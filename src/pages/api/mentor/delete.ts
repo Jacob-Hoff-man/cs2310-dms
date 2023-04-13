@@ -1,19 +1,18 @@
 
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { Application } from "@prisma/client";
+import { Mentor } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from '../../../../prisma/prisma';
 
-
-export default async (req: NextApiRequest, res: NextApiResponse<Application>) => {
-  const appId = req.body as string;
+export default async (req: NextApiRequest, res: NextApiResponse<Mentor>) => {
+  const mentorId = req.body as string;
   try {
-    const deletedApp = await prisma.application.delete({
+    const deletedMentor = await prisma.mentor.delete({
         where: {
-            id: appId,
+            id: mentorId,
         }
     });
-    res.status(200).json(deletedApp);
+    res.status(200).json(deletedMentor);
   } catch (error) {
     res.status(403)
     console.log(error);

@@ -65,9 +65,25 @@ model Application {
   appType AppType @default(MENTOR)
   isApproved Boolean @default(false)
   kidName String?
-}
+  kid Kid?
+  mentor Mentor?
+  }
 
 enum AppType {
   KID
   MENTOR
+}
+
+model Kid {
+  id String @default(cuid()) @id
+  kidName String
+  app Application? @relation(fields: [appId], references: [id])
+  appId String @unique
+}
+
+model Mentor {
+  id String @default(cuid()) @id
+  mentorName String
+  app Application? @relation(fields: [appId], references: [id])
+  appId String @unique
 }
