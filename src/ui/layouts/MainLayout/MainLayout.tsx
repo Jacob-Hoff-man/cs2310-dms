@@ -8,8 +8,6 @@ import theme from '../../styles/theme';
 
 import navBarLogo from '../../../../public/assets/images/logo.png';
 import metaData from '../../../../public/assets/datas/globalMetaData.json';
-import questions from '../../../../public/assets/datas/qaQuestionData.json';
-import getPagesRecord from '../../../helpers/questions/getPagesRecord';
 
 type Props = {
     children: ReactNode;
@@ -17,7 +15,6 @@ type Props = {
 
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 const name = `${new Date().getFullYear()} ${metaData.footerTitle}`;
-const pages = getPagesRecord(questions);
 
 export default function MainLayout({ children }: Props) {
   return (
@@ -29,9 +26,9 @@ export default function MainLayout({ children }: Props) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstarts an elegant, consisten, and simple baseline to build upon */}
         <CssBaseline />
-        <header><NavBar title={metaData.navBarTitle} pages={pages} logo={navBarLogo} /></header>
+        <header><NavBar title={metaData.navBarTitle} logo={navBarLogo} /></header>
         {children}
-        <Footer name={name} pages={pages} />
+        <Footer name={name} />
       </ThemeProvider>
     </>
   );

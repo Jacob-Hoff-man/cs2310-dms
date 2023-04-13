@@ -27,3 +27,11 @@ export const StyledGrid = styled(Grid)`
   align-items: center;
   justify-content: center;
 `;
+
+export const Approved = styled.div`
+  background-color: green;
+`;
+
+export const Denied = styled.div`
+  background-color: red;
+`;

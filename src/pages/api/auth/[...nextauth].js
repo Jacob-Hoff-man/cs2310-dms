@@ -1,12 +1,8 @@
 import NextAuth from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import GithubProvider from "next-auth/providers/github"
 import EmailProvider from "next-auth/providers/email"
 
-import { PrismaClient } from '@prisma/client'
-
-// Instantiate Prisma Client
-const prisma = new PrismaClient()
+import prisma from '../../../../prisma/prisma';
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -22,5 +18,21 @@ export default NextAuth({
     }),
     //...add more providers here
   ],
+  callbacks: {
+    async jwt({token, user, account, profile, isNewUser}) {
+        user && (token.user = user)
+        return token
+    },
+    async session({session, token, user}) {
+        session = {
+            ...session,
+            user: {
+                id: user.id,
+                ...session.user
+            }
+        }
+        return session
+    }
+  },
   secret: process.env.NEXTAUTH_SECRET,
 });

@@ -2,7 +2,7 @@ import {
   render,
   screen
 } from '@testing-library/react';
-import HomePage from '../src/ui/pages/HomePage';
+import HomePage from '../src/ui/comps/Index';
 
 describe('HomePage', () => {
   it('Renders a heading about front-end tech', () => {
