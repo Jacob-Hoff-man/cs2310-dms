@@ -8,7 +8,6 @@ import { deleteApp, updateAppIsApproved } from '../../../endpoints/application';
 import { useState } from 'react';
 import { addNewKid, deleteKidByAppId } from '../../../endpoints/kid';
 import { addNewMentor, deleteMentorByAppId } from '../../../endpoints/mentor';
-import App from 'next/app';
 
 type Props = {
     applications: Application [];
