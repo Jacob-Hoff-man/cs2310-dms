@@ -120,9 +120,12 @@ function RegularUserDashboard({
     if (session && typeof session.user !== 'undefined') {
         return (
             <StyledBox>
-                <Typography variant='h6'>Welcome to the Regular Dashboard page!</Typography>
-                <Typography>Signed in as {session.user.email}</Typography>
-                <Button onClick={() => signOut()}>Sign Out</Button>
+                { /* User/Dashboard info */ }
+                <StyledBox>
+                    <Typography variant='h6'>Welcome to the Regular Dashboard page!</Typography>
+                    <Typography>Signed in as {session.user.email}</Typography>
+                    <Button onClick={() => signOut()}>Sign Out</Button>
+                </StyledBox>
                 { /* Scheduled User Appointments (Any Perspective) */
                     currentUserIsMentor && currentUserScheduledAppts.length > 0 && (
                         <StyledBox>

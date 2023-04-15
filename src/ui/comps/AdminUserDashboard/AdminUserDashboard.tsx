@@ -92,10 +92,13 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
         if (isAdmin(session.user.email)) {
             return (
                 <StyledBox>
-                    <Typography variant='h6'>Welcome to the Admin Dashboard page!</Typography>
-                    <Typography>Signed in as {session.user.email}</Typography>
-                    <Button onClick={() => signOut()}>Sign Out</Button>
-                    {
+                    { /* User/Dashboard info */ }
+                    <StyledBox>
+                        <Typography variant='h6'>Welcome to the Admin Dashboard page!</Typography>
+                        <Typography>Signed in as {session.user.email}</Typography>
+                        <Button onClick={() => signOut()}>Sign Out</Button>
+                    </StyledBox>
+                    {   /* Mentor and Kid applications */
                         currentApps.length > 0 && (
                             <StyledBox>
                                 <Typography variant='h6'>
