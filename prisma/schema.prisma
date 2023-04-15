@@ -77,7 +77,7 @@ enum AppType {
 model Kid {
   id String @default(cuid()) @id
   kidName String
-  app Application? @relation(fields: [appId], references: [id])
+  app Application? @relation(fields: [appId], references: [id], onDelete: Cascade)
   appId String @unique
   appointments Appointment[]
   @@map(name: "kids")
@@ -86,7 +86,7 @@ model Kid {
 model Mentor {
   id String @default(cuid()) @id
   mentorName String
-  app Application? @relation(fields: [appId], references: [id])
+  app Application? @relation(fields: [appId], references: [id], onDelete: Cascade)
   appId String @unique
   appointments Appointment[]
   @@map(name: "mentors")
