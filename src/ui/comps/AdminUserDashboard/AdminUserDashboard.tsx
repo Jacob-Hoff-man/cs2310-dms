@@ -17,9 +17,9 @@ type Props = {
 function AdminUserDashboard({ applications, userEmails }: Props) {
     const [currentApps, setCurrentApps] = useState(applications);
     const [currentUserEmails, setCurrentUserEmails] = useState(userEmails);
-
     const { data: session } = useSession();
     const router = useRouter();
+    // handler fcns
     const toggleIsApproved = async (appId: string, isApproved: boolean) => {
         const body = {
             appId,
@@ -86,8 +86,7 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
             console.log('DELETED MENTOR', deletedMentor);
         }
     }
-
-
+    // conditional rendering based on successful user authentication
     if (session && typeof session.user !== 'undefined') {
         if (isAdmin(session.user.email)) {
             return (
@@ -98,6 +97,10 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
                         <Typography>Signed in as {session.user.email}</Typography>
                         <Button onClick={() => signOut()}>Sign Out</Button>
                     </StyledBox>
+                    {
+                        /* all Scheduled Appointments */
+                        
+                    }
                     {   /* Mentor and Kid applications */
                         currentApps.length > 0 && (
                             <StyledBox>

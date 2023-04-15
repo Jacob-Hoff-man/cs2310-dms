@@ -36,6 +36,7 @@ function RegularUserDashboard({
     userScheduledAppointments,
     scheduledApptsMentors
 }: Props) {
+    // state vars
     const [currentUserApps, setCurrentUserApps] = useState<Application []>(userApplications);
     const [currentUserKids, setCurrentUserKids] = useState<Kid []>(userKids);
     const [currentApptKids, setCurrentApptKids] = useState<Kid []>(apptKids);
@@ -46,10 +47,9 @@ function RegularUserDashboard({
     const [currentUnscheduledAppts, setCurrentUnscheduledAppts] = useState(unscheduledAppointments);
     const [currentUserScheduledAppts, setCurrentUserScheduledAppts] = useState(userScheduledAppointments);
     const [currentScheduledApptsMentors, setCurrentScheduledApptsMentors] = useState(scheduledApptsMentors);
-
     const { data: session } = useSession();
     const router = useRouter();
-
+    // handler fcns
     const submitNewApp = async (inpApp: Application) => {
         if (session && typeof session.user !== 'undefined') {
             inpApp.userId = session.user.id;
@@ -116,7 +116,7 @@ function RegularUserDashboard({
         setCurrentUserScheduledAppts(newScheduledAppts);
         console.log('SCHEDULED APPOINTMENTS', currentUserScheduledAppts);
     };
-
+    // conditional rendering based on successful user authentication
     if (session && typeof session.user !== 'undefined') {
         return (
             <StyledBox>
@@ -127,7 +127,7 @@ function RegularUserDashboard({
                     <Button onClick={() => signOut()}>Sign Out</Button>
                 </StyledBox>
                 { /* Scheduled User Appointments (Any Perspective) */
-                    currentUserIsMentor && currentUserScheduledAppts.length > 0 && (
+                    currentUserScheduledAppts.length > 0 && (
                         <StyledBox>
                             <Typography variant='h6'>
                                 {`Scheduled Appointments:`}
@@ -135,7 +135,11 @@ function RegularUserDashboard({
                             <StyledUnorderedList>
                             {
                                 currentUserScheduledAppts.map((appt) => {
-                                    let kid = currentApptKids.find((kid) => kid.id === appt.kidId);
+                                    let userKidsIds = currentUserKids.map((kid) => kid.id);
+                                    let kid = appt.kidId !== null &&
+                                        userKidsIds.includes(appt.kidId) ? 
+                                        currentUserKids.find((kid) => kid.id === appt.kidId) : 
+                                        currentApptKids.find((kid) => kid.id === appt.kidId);
                                     let mentor = currentScheduledApptsMentors.find((mentor) => mentor.id === appt.mentorId);
                                     return (
                                         <li key={appt.id}>
