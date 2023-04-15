@@ -1,26 +1,40 @@
-import { Approved, Denied, StyledBox, StyledUnorderedList } from './adminUserDashboard.styles';
+import { Active, Approved, Denied, StyledBox, StyledUnorderedList } from './adminUserDashboard.styles';
 import { signOut, useSession } from 'next-auth/react';
 import isAdmin from '../../../auth/admin';
 import { Button, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { Application, AppType, Kid, Mentor } from '@prisma/client';
+import { Application, Appointment, AppType, Kid, Mentor } from '@prisma/client';
 import { deleteApp, updateAppIsApproved } from '../../../endpoints/application';
 import { useState } from 'react';
 import { addNewKid, deleteKidByAppId } from '../../../endpoints/kid';
 import { addNewMentor, deleteMentorByAppId } from '../../../endpoints/mentor';
+import { deleteAppt, updateApptIsActive } from '../../../endpoints/appointment';
 
 type Props = {
     applications: Application [];
     userEmails: Map<string, string>;
+    scheduledAppts: Appointment [];
+    scheduledApptsMentors: Mentor [];
+    scheduledApptsKids: Kid [];
 }
 
-function AdminUserDashboard({ applications, userEmails }: Props) {
+function AdminUserDashboard({
+    applications,
+    userEmails,
+    scheduledAppts,
+    scheduledApptsMentors,
+    scheduledApptsKids
+}: Props) {
+    // state vars
     const [currentApps, setCurrentApps] = useState(applications);
     const [currentUserEmails, setCurrentUserEmails] = useState(userEmails);
+    const [currentScheduledAppts, setCurrentScheduledAppts] = useState(scheduledAppts);
+    const [currentScheduledApptsMentors, setCurrentScheduledApptsMentors] = useState(scheduledApptsMentors);
+    const [currentScheduledApptsKids, setCurrentScheduledApptsKids] = useState(scheduledApptsKids);
     const { data: session } = useSession();
     const router = useRouter();
     // handler fcns
-    const toggleIsApproved = async (appId: string, isApproved: boolean) => {
+    const toggleAppIsApproved = async (appId: string, isApproved: boolean) => {
         const body = {
             appId,
             isApproved
@@ -86,6 +100,24 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
             console.log('DELETED MENTOR', deletedMentor);
         }
     }
+    const handleDeleteScheduledAppt = async (apptId: string) => {
+        const deletedAppt = await deleteAppt(apptId) as Appointment;
+        // update the local scheduledAppts state
+        let newScheduledAppts = currentScheduledAppts.filter((appt) => appt.id !== deletedAppt.id);
+        setCurrentScheduledAppts(newScheduledAppts);
+        console.log('SCHEDULED APPTS',currentScheduledAppts)
+    };
+    const toggleApptIsActive = async (apptId: string, isActive: boolean) => {
+        const body = {
+            apptId,
+            isActive
+        }
+        const updatedAppt = await updateApptIsActive(body) as Appointment;
+        // update the local scheduledAppts state
+        let newScheduledAppts = currentScheduledAppts.filter((appt) => appt.id != updatedAppt.id);
+        newScheduledAppts.push(updatedAppt);
+        setCurrentScheduledAppts(newScheduledAppts);
+    };
     // conditional rendering based on successful user authentication
     if (session && typeof session.user !== 'undefined') {
         if (isAdmin(session.user.email)) {
@@ -99,7 +131,61 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
                     </StyledBox>
                     {
                         /* all Scheduled Appointments */
-                        
+                        currentScheduledAppts.length > 0 && (
+                            <StyledBox>
+                                <Typography variant='h6'>
+                                    {`Scheduled Appointments:`}
+                                </Typography>
+                                <StyledUnorderedList>
+                                {
+                                    currentScheduledAppts.map((appt) => {
+                                        let kid = currentScheduledApptsKids.find((kid) => kid.id === appt.kidId)
+                                        let mentor = currentScheduledApptsMentors.find((mentor) => mentor.id === appt.mentorId);
+                                        if (appt.isActive) {
+                                            return (
+                                                <Active>
+                                                    <li key={appt.id}>
+                                                        {`   `}
+                                                        {(mentor as Mentor).mentorName}
+                                                        {`   `}
+                                                        {(kid as Kid).kidName}
+                                                        {`   `}
+                                                        {`${appt.startTime}`}
+                                                        {`   `}
+                                                        <Button 
+                                                            onClick={() => toggleApptIsActive(appt.id, false)}
+                                                        >
+                                                            {`End`}
+                                                        </Button>
+                                                        {`   `}
+                                                        <Button onClick={() => handleDeleteScheduledAppt(appt.id)}>{`Delete`}</Button>
+                                                    </li>
+                                                </Active>
+                                            );
+                                        }
+                                        return (
+                                            <li key={appt.id}>
+                                                {`   `}
+                                                {(mentor as Mentor).mentorName}
+                                                {`   `}
+                                                {(kid as Kid).kidName}
+                                                {`   `}
+                                                {`${appt.startTime}`}
+                                                {`   `}
+                                                <Button 
+                                                    onClick={() => toggleApptIsActive(appt.id, true)}
+                                                >
+                                                    {`Start`}
+                                                </Button>
+                                                {`   `}
+                                                <Button onClick={() => handleDeleteScheduledAppt(appt.id)}>{`Delete`}</Button>
+                                            </li>
+                                        );
+                                    })
+                                }
+                            </StyledUnorderedList>
+                            </StyledBox>
+                        )
                     }
                     {   /* Mentor and Kid applications */
                         currentApps.length > 0 && (
@@ -120,7 +206,7 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
                                                             {`   `}
                                                             {app.userId !== null ? currentUserEmails.get(app.userId) : app.userId}
                                                             {`   `}
-                                                            <Button onClick={() => toggleIsApproved(app.id, false)}>{`Deny App`}</Button>
+                                                            <Button onClick={() => toggleAppIsApproved(app.id, false)}>{`Deny App`}</Button>
                                                             {`   `}
                                                             <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
                                                             
@@ -138,7 +224,7 @@ function AdminUserDashboard({ applications, userEmails }: Props) {
                                                             {`   `}
                                                             {app.userId !== null ? currentUserEmails.get(app.userId) : app.userId}
                                                             {`   `}
-                                                            <Button onClick={() => toggleIsApproved(app.id, true)}>{`Accept App`}</Button>
+                                                            <Button onClick={() => toggleAppIsApproved(app.id, true)}>{`Accept App`}</Button>
                                                             {`   `}
                                                             <Button onClick={() => handleDeleteApp(app.id)}>{`Delete App`}</Button>
                                                         </li>

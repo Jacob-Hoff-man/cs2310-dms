@@ -73,16 +73,28 @@ export default function Index({ applications, kids, mentors, appointments }: Pro
   if (session && typeof session.user !== 'undefined') {
     // logged in
     if (isAdmin(session.user.email)) {
+      // map user emails
       let userEmails = new Map<string, string>();
       applications.forEach((app) => {
         if (app.userId !== null && app.user !== null && app.user.email !== null) {
           userEmails.set(app.userId, app.user.email);
         }
       }); 
+      // get scheduled appts
+      let scheduledAppts = appointments.filter((appt) => appt.isScheduled);
+      // get scheduled appts mentors
+      let scheduledApptsMentorsIds = scheduledAppts.map((appt) => appt.mentorId);
+      let scheduledApptsMentors = mentors.filter((mentor) => scheduledApptsMentorsIds.includes(mentor.id));
+      // get scheduled appts kids
+      let scheduledApptsKidsIds = scheduledAppts.map((appt) => appt.kidId);
+      let scheduledApptsKids = kids.filter((kid) => scheduledApptsKidsIds.includes(kid.id));
       return (
         <AdminUserDashboard 
           applications={applications}
           userEmails={userEmails}
+          scheduledAppts={scheduledAppts}
+          scheduledApptsMentors={scheduledApptsMentors}
+          scheduledApptsKids={scheduledApptsKids}
         />
       );
     } else {

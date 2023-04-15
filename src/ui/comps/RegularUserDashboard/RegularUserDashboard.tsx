@@ -10,6 +10,7 @@ import { deleteKidByAppId } from '../../../endpoints/kid';
 import { deleteMentorByAppId } from '../../../endpoints/mentor';
 import ApptPopupButton from '../ApptPopupButton';
 import { addNewAppt, deleteAppt, updateApptMentor } from '../../../endpoints/appointment';
+import { Active } from './regularUserDashboard.styles';
 
 type Props = {
     userApplications: Application [];
@@ -141,6 +142,20 @@ function RegularUserDashboard({
                                         currentUserKids.find((kid) => kid.id === appt.kidId) : 
                                         currentApptKids.find((kid) => kid.id === appt.kidId);
                                     let mentor = currentScheduledApptsMentors.find((mentor) => mentor.id === appt.mentorId);
+                                    if (appt.isActive) {
+                                        return (
+                                            <Active>
+                                                <li key={appt.id}>
+                                                    {`   `}
+                                                    {(mentor as Mentor).mentorName}
+                                                    {`   `}
+                                                    {(kid as Kid).kidName}
+                                                    {`   `}
+                                                    {`${appt.startTime}`}
+                                                </li>
+                                            </Active>
+                                        )
+                                    }
                                     return (
                                         <li key={appt.id}>
                                             {`   `}
