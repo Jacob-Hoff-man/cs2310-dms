@@ -77,13 +77,29 @@ enum AppType {
 model Kid {
   id String @default(cuid()) @id
   kidName String
-  app Application? @relation(fields: [appId], references: [id])
+  app Application? @relation(fields: [appId], references: [id], onDelete: Cascade)
   appId String @unique
+  appointments Appointment[]
+  @@map(name: "kids")
 }
 
 model Mentor {
   id String @default(cuid()) @id
   mentorName String
-  app Application? @relation(fields: [appId], references: [id])
+  app Application? @relation(fields: [appId], references: [id], onDelete: Cascade)
   appId String @unique
+  appointments Appointment[]
+  @@map(name: "mentors")
+}
+
+model Appointment {
+  id String @default(cuid()) @id
+  startTime DateTime @default(now()) @db.Timestamp()
+  endTime DateTime? @db.Timestamp()
+  isScheduled Boolean @default(false)
+  isActive Boolean @default(false)
+  kid Kid? @relation(fields: [kidId], references: [id])
+  kidId String?
+  mentor Mentor? @relation(fields: [mentorId], references: [id])
+  mentorId String?
 }
