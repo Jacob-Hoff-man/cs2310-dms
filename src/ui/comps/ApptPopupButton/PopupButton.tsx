@@ -24,7 +24,7 @@ export default function PopupButton({ callback, apptKid }: Props) {
 
   const handleSubmit = (appt: Appointment) => {
     appt.kidId = apptKid.id;
-    console.log('submitted app');
+    console.log('submitted appt');
     callback(appt);
     handleClose();
   };
@@ -45,7 +45,7 @@ export default function PopupButton({ callback, apptKid }: Props) {
           REQUEST APPOINTMENT FOR {apptKid.kidName}
         </StyledButton>
       </Tooltip>
-      <CustomDialog open={open} onClose={handleClose} title="Insert Application Information">
+      <CustomDialog open={open} onClose={handleClose} title="Insert Appointment Information">
         <ApptInputForm callback={handleSubmit} />
       </CustomDialog>
     </>
